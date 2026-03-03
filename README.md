@@ -30,4 +30,4 @@ https://github.com/ARNoname/ArtAppsUnityAdapter.git
 ## Troubleshooting
 
 - **"Invalid Request: Ineligible Ad Unit" (Code 1035)**: This is normal for new Ad Units. It may take 30–60 minutes for AppLovin servers to propagate the new ID.
-- **Android Build Errors**: Ensure `ArtAppsWebViewActivity` is declared in your Manifest (included by default).
+
