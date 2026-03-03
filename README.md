@@ -11,7 +11,7 @@ ArtApps Ad Network adapter for AppLovin MAX Mediation.
 5. Enter the following URL:
 
 ```
-https://github.com/ARNoname/ArtAppsUnityAdapter.git#1.0.0
+https://github.com/ARNoname/ArtAppsUnityAdapter.git
 ```
 
 6. Click **Add** and wait for the package to import.
