@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.artapps.sdk.plugin">
+
+    <application>
+        <activity android:name="com.artapps.sdk.ArtAppsWebViewActivity"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:configChanges="orientation|screenSize|keyboardHidden"
+                  android:hardwareAccelerated="true" />
+    </application>
+</manifest>

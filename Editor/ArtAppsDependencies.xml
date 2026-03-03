@@ -1,0 +1,9 @@
+<dependencies>
+  <androidPackages>
+    <androidPackage spec="com.applovin:applovin-sdk:12.6.1">
+      <repositories>
+        <repository>https://repo.maven.apache.org/maven2</repository>
+      </repositories>
+    </androidPackage>
+  </androidPackages>
+</dependencies>
