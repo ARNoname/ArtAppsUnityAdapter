@@ -3,14 +3,14 @@ import UIKit
 import AppLovinSDK
 
 @objc(ArtAppsMaxAdapter)
-public class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
+class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
 
     private var interstitialAd: ArtAppsInterstitial?
     private var adapterDelegate: ArtAppsInterstitialAdapterDelegate?
     
     // MARK: - MAAdapter Methods
 
-    public override func initialize(with parameters: MAAdapterInitializationParameters, completionHandler: @escaping (MAAdapterInitializationStatus, String?) -> Void) {
+    override func initialize(with parameters: MAAdapterInitializationParameters, completionHandler: @escaping (MAAdapterInitializationStatus, String?) -> Void) {
         
         let serverParameters = parameters.serverParameters
         
@@ -25,15 +25,15 @@ public class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         }
     }
 
-    public override var sdkVersion: String {
+    override var sdkVersion: String {
         return "1.0.0"
     }
 
-    public override var adapterVersion: String {
+    override var adapterVersion: String {
         return "1.0.0.0"
     }
 
-    public override func destroy() {
+    override func destroy() {
         let capturedSelf = UncheckedSendable(value: self)
         DispatchQueue.main.async {
             capturedSelf.value.interstitialAd?.delegate = nil
@@ -44,7 +44,7 @@ public class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
 
     // MARK: - MAInterstitialAdapter Methods
 
-    public func loadInterstitialAd(for parameters: MAAdapterResponseParameters, andNotify delegate: MAInterstitialAdapterDelegate) {
+    func loadInterstitialAd(for parameters: MAAdapterResponseParameters, andNotify delegate: MAInterstitialAdapterDelegate) {
         print("[ArtAppsMaxAdapter]: loadInterstitialAd 👁️")
         let placementId = parameters.thirdPartyAdPlacementIdentifier
         
@@ -66,7 +66,7 @@ public class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         }
     }
 
-    public func showInterstitialAd(for parameters: MAAdapterResponseParameters, andNotify delegate: MAInterstitialAdapterDelegate) {
+    func showInterstitialAd(for parameters: MAAdapterResponseParameters, andNotify delegate: MAInterstitialAdapterDelegate) {
         print("[ArtAppsMaxAdapter]: showInterstitialAd 👁️")
         
         let captured = UncheckedSendable(value: (self, delegate))
