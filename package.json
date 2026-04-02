@@ -1,6 +1,6 @@
 {
   "name": "com.artapps.unity-adapter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "ArtApps Custom Adapter",
   "description": "ArtApps Ad Network adapter for AppLovin MAX Mediation in Unity. Includes native iOS and Android adapters.",
   "unity": "2020.3",
