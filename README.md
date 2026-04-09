@@ -27,7 +27,7 @@ https://github.com/ARNoname/ArtAppsUnityAdapter.git
 3. Set the **Adapter Class Name** for **iOS** to: `ArtAppsMaxAdapter`.
 4. Set the **Adapter Class Name** for **Android** to: `com.artapps.sdk.ArtAppsMaxAdapter`.
 5. In **Custom Parameters**, pass JSON with:
-   - `adw_key` (required)
+   - `partner_id` (required)
    - `app_id` (required)
 
 ## Analytics & Tracking
