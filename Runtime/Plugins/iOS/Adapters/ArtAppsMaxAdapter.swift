@@ -14,13 +14,13 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         
         let serverParameters = parameters.serverParameters
         
-        let partnerId = (serverParameters["partner_id"] as? String) ?? "test_partner"
+        let adwKey = (serverParameters["adw_key"] as? String) ?? "test_adw_key"
         let appId = (serverParameters["app_id"] as? String) ?? "test_app"
         
-        let params = UncheckedSendable(value: (partnerId, appId, completionHandler))
+        let params = UncheckedSendable(value: (adwKey, appId, completionHandler))
     
         DispatchQueue.main.async {
-            ArtApps.shared.initialize(partnerId: params.value.0, appId: params.value.1)
+            ArtApps.shared.initialize(adwKey: params.value.0, appId: params.value.1)
             params.value.2(.initializedSuccess, nil)
         }
     }
@@ -87,5 +87,4 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         }
     }
 }
-
 

@@ -10,7 +10,7 @@ class ArtAppsNetworkManager {
     
     var baseURL = "https://api.adw.net/applovin/request"
     
-    func fetchAd(partnerId: String, appId: String, placementId: String, completion: @escaping @Sendable (Result<ArtAppsAdResponse, Error>) -> Void) {
+    func fetchAd(adwKey: String, appId: String, placementId: String, completion: @escaping @Sendable (Result<ArtAppsAdResponse, Error>) -> Void) {
         
         guard var components = URLComponents(string: baseURL) else {
             completion(.failure(ArtAppsNetworkError.invalidURL))
@@ -18,7 +18,7 @@ class ArtAppsNetworkManager {
         }
         
         components.queryItems = [
-            URLQueryItem(name: "partner_id", value: partnerId),
+            URLQueryItem(name: "adw_key", value: adwKey),
             URLQueryItem(name: "app_id", value: appId),
             URLQueryItem(name: "placement", value: placementId),
             URLQueryItem(name: "idfa_status", value: idfaStatusString())

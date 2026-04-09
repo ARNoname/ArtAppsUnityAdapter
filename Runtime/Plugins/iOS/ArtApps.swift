@@ -5,7 +5,7 @@ import Foundation
 public class ArtApps {
     public static let shared = ArtApps()
     
-    public private(set) var partnerId: String?
+    public private(set) var adwKey: String?
     public private(set) var appId: String?
     public private(set) var isInitialized = false
     
@@ -30,9 +30,9 @@ public class ArtApps {
     
     private init() {}
     
-    public func initialize(partnerId: String, appId: String, baseURL: String? = nil) {
+    public func initialize(adwKey: String, appId: String, baseURL: String? = nil) {
          
-         self.partnerId = partnerId
+         self.adwKey = adwKey
          self.appId = appId
          
          if let baseURL = baseURL {
@@ -41,7 +41,7 @@ public class ArtApps {
         
          self.isInitialized = true
         
-         print("[ArtApps] Initialized at \(startTime). PartnerID: \(partnerId)")
+         print("[ArtApps] Initialized at \(startTime). AdwKey: \(adwKey)")
          print("[ArtApps] Initialized at \(startTime). AppID: \(appId)")
      }
 

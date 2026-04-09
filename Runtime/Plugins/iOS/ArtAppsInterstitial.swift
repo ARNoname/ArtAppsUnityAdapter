@@ -26,7 +26,7 @@ public class ArtAppsInterstitial: NSObject {
     }
     
     public func load() {
-        guard let partnerId = ArtApps.shared.partnerId, let appId = ArtApps.shared.appId else {
+        guard let adwKey = ArtApps.shared.adwKey, let appId = ArtApps.shared.appId else {
             print("[ArtApps] Error: SDK not initialized. Call ArtApps.initialize() first.")
             let error = NSError(domain: "com.artApps.sdk", code: 100, userInfo: [NSLocalizedDescriptionKey: "SDK not initialized"])
             delegate?.artAppsInterstitial(self, didFailToLoad: error)
@@ -42,7 +42,7 @@ public class ArtAppsInterstitial: NSObject {
         
         isReady = false
         
-        ArtAppsNetworkManager.shared.fetchAd(partnerId: partnerId, appId: appId, placementId: placementId) { [weak self] result in
+        ArtAppsNetworkManager.shared.fetchAd(adwKey: adwKey, appId: appId, placementId: placementId) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 

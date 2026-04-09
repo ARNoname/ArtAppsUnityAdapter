@@ -26,8 +26,14 @@ https://github.com/ARNoname/ArtAppsUnityAdapter.git
 2. Select your **Custom Network** (e.g., ArtApps).
 3. Set the **Adapter Class Name** for **iOS** to: `ArtAppsMaxAdapter`.
 4. Set the **Adapter Class Name** for **Android** to: `com.artapps.sdk.ArtAppsMaxAdapter`.
+5. In **Custom Parameters**, pass JSON with:
+   - `adw_key` (required)
+   - `app_id` (required)
+
+## Analytics & Tracking
+
+When the SDK tracks an impression via the `track_url` provided in the ad response, it automatically appends a `&was_visible={seconds}` query parameter (where `{seconds}` is an `Int`). This allows the backend to know exactly how long the ad was visible on the screen.
 
 ## Troubleshooting
 
 - **"Invalid Request: Ineligible Ad Unit" (Code 1035)**: This is normal for new Ad Units. It may take 30–60 minutes for AppLovin servers to propagate the new ID.
-
