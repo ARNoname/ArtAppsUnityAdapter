@@ -3,7 +3,7 @@ import WebKit
 
 struct ArtAppsWebViewWrapper: UIViewRepresentable {
     let url: URL
-    let onLoad: () -> Void
+    let onFail: (Error) -> Void
     
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -29,6 +29,8 @@ struct ArtAppsWebViewWrapper: UIViewRepresentable {
     @MainActor
     class Coordinator: NSObject, WKNavigationDelegate {
         var parent: ArtAppsWebViewWrapper
+        private var didFinishInitialNavigation = false
+        private var didFailInitialNavigation = false
         
         init(parent: ArtAppsWebViewWrapper) {
             self.parent = parent
@@ -43,7 +45,25 @@ struct ArtAppsWebViewWrapper: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            parent.onLoad()
+            didFinishInitialNavigation = true
+        }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            notifyFailureIfNeeded(error)
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            notifyFailureIfNeeded(error)
+        }
+        
+        private func notifyFailureIfNeeded(_ error: Error) {
+            if (error as? URLError)?.code == .cancelled {
+                return
+            }
+            
+            guard !didFinishInitialNavigation, !didFailInitialNavigation else { return }
+            didFailInitialNavigation = true
+            parent.onFail(error)
         }
     }
 }

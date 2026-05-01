@@ -20,8 +20,14 @@ class ArtAppsInterstitialAdapterDelegate: ArtAppsInterstitialDelegate {
     
     func artAppsInterstitial(_ ad: ArtAppsInterstitial, didFailToLoad error: Error) {
         print("[ArtAppsMaxAdapter] Delegate received: didFailToLoad (\(error.localizedDescription)) 🤡")
-        // Map error to MAAdapterError if possible, or generic
         maxDelegate.didFailToLoadInterstitialAdWithError(mapError(error))
+        parentAdapter?.clearInterstitialAd(ad)
+    }
+    
+    func artAppsInterstitial(_ ad: ArtAppsInterstitial, didFailToDisplay error: Error) {
+        print("[ArtAppsMaxAdapter] Delegate received: didFailToDisplay (\(error.localizedDescription)) 🤡")
+        maxDelegate.didFailToDisplayInterstitialAdWithError(mapError(error))
+        parentAdapter?.clearInterstitialAd(ad)
     }
     
     private func mapError(_ error: Error) -> MAAdapterError {
@@ -31,6 +37,8 @@ class ArtAppsInterstitialAdapterDelegate: ArtAppsInterstitialDelegate {
                 return MAAdapterError.notInitialized
             case 204, 205:
                 return MAAdapterError.noFill
+            case 301:
+                return MAAdapterError.adNotReady
             default:
                 break
             }
@@ -61,6 +69,7 @@ class ArtAppsInterstitialAdapterDelegate: ArtAppsInterstitialDelegate {
     func artAppsInterstitialDidHide(_ ad: ArtAppsInterstitial) {
         print("[ArtAppsMaxAdapter] Delegate received: artAppsInterstitialDidHide 🤡")
         maxDelegate.didHideInterstitialAd()
+        parentAdapter?.clearInterstitialAd(ad)
     }
     
     func artAppsInterstitialDidClick(_ ad: ArtAppsInterstitial) {

@@ -4,7 +4,7 @@ import WebKit
 struct ArtAppsAdView: View {
     let url: URL
     let onClose: () -> Void
-    let onLoad: () -> Void
+    let onFail: (Error) -> Void
     let adDuration: TimeInterval
     
     @Environment(\.colorScheme) var colorScheme
@@ -13,6 +13,9 @@ struct ArtAppsAdView: View {
     @State private var isCloseButtonVisible = false
     @State private var isTimerActive = false
     private let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+    private var effectiveAdDuration: TimeInterval {
+        max(adDuration, 1)
+    }
     
     // ------ If need set app product, you must get data from server ------//
     @State var appProduct: ArtAppsProduct?
@@ -36,19 +39,19 @@ struct ArtAppsAdView: View {
             .frame(minHeight: 24)
             .padding(.horizontal, 10)
             
-            ArtAppsWebViewWrapper(url: url, onLoad: {
-                isTimerActive = true
-                onLoad()
-            })
+            ArtAppsWebViewWrapper(url: url, onFail: onFail)
             .edgesIgnoringSafeArea(.all)
             .clipShape(RoundedRectangle(cornerRadius: 20))
         }
         .background(colorScheme == .dark ? Color.black.opacity(0.93) : Color.white)
         .edgesIgnoringSafeArea([.leading, .trailing, .bottom])
+        .onAppear {
+            isTimerActive = true
+        }
         .onReceive(timer) { _ in
             guard isTimerActive else { return }
             if progress < 1.0 {
-                progress += 0.1 / adDuration
+                progress += 0.1 / effectiveAdDuration
             } else {
                 isTimerActive = false
                 withAnimation(.linear(duration: 0.1)) {
@@ -133,7 +136,5 @@ struct ArtAppsAdView: View {
 }
 
 #Preview {
-    ArtAppsAdView(url: URL(string: "https://google.com")!, onClose: {}, onLoad: {}, adDuration: 20)
+    ArtAppsAdView(url: URL(string: "https://google.com")!, onClose: {}, onFail: { _ in }, adDuration: 20)
 }
-
-

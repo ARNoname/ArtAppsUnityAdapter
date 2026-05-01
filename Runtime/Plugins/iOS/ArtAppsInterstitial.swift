@@ -1,9 +1,10 @@
- import UIKit
+import UIKit
 
 @MainActor
 public protocol ArtAppsInterstitialDelegate: AnyObject {
     func artAppsInterstitialDidLoad(_ ad: ArtAppsInterstitial)
     func artAppsInterstitial(_ ad: ArtAppsInterstitial, didFailToLoad error: Error)
+    func artAppsInterstitial(_ ad: ArtAppsInterstitial, didFailToDisplay error: Error)
     func artAppsInterstitialDidDisplay(_ ad: ArtAppsInterstitial)
     func artAppsInterstitialDidHide(_ ad: ArtAppsInterstitial)
     func artAppsInterstitialDidClick(_ ad: ArtAppsInterstitial) // Optional depending on WebView interaction
@@ -19,6 +20,8 @@ public class ArtAppsInterstitial: NSObject {
     private var adResponse: ArtAppsAdResponse?
     private var presenter: ArtAppsWebViewController?
     private var adDisplayStartTime: Date?
+    private var didNotifyDisplay = false
+    private var didCompleteDisplay = false
     
     public init(placementId: String) {
         self.placementId = placementId
@@ -40,7 +43,7 @@ public class ArtAppsInterstitial: NSObject {
             return
         }
         
-        isReady = false
+        resetAdState()
         
         ArtAppsNetworkManager.shared.fetchAd(partnerId: partnerId, appId: appId, placementId: placementId) { [weak self] result in
             DispatchQueue.main.async {
@@ -54,18 +57,24 @@ public class ArtAppsInterstitial: NSObject {
                         ttlSeconds: response.ttl
                     )
                     
-                    if response.allow == true {
-                        self.adResponse = response
-                        
-                        self.isReady = true
-                        print("[ArtApps] Interstitial loaded for placement: \(self.placementId)")
-                        self.delegate?.artAppsInterstitialDidLoad(self)
-                        
-                    } else {
+                    guard response.allow == true else {
                         let error = NSError(domain: "com.artApps.sdk", code: 204, userInfo: [NSLocalizedDescriptionKey: "No Fill"])
                         print("[ArtApps] No fill for placement: \(self.placementId)")
                         self.delegate?.artAppsInterstitial(self, didFailToLoad: error)
+                        return
                     }
+                    
+                    guard self.adURL(from: response) != nil else {
+                        let error = NSError(domain: "com.artApps.sdk", code: 206, userInfo: [NSLocalizedDescriptionKey: "Invalid ad response"])
+                        print("[ArtApps] Load failed: invalid ad URL for placement: \(self.placementId)")
+                        self.delegate?.artAppsInterstitial(self, didFailToLoad: error)
+                        return
+                    }
+                    
+                    self.adResponse = response
+                    self.isReady = true
+                    print("[ArtApps] Interstitial loaded for placement: \(self.placementId)")
+                    self.delegate?.artAppsInterstitialDidLoad(self)
                     
                 case .failure(let error):
                     print("[ArtApps] Load failed: \(error.localizedDescription)")
@@ -80,71 +89,134 @@ public class ArtAppsInterstitial: NSObject {
         guard isReady else {
             let error = NSError(domain: "com.artApps.sdk", code: 301, userInfo: [NSLocalizedDescriptionKey: "Ad not ready"])
             print("[ArtApps] Error: Ad not ready.")
-            delegate?.artAppsInterstitial(self, didFailToLoad: error)
+            notifyDisplayFailure(error)
             return
         }
         
-        guard let finalUrlString = adResponse?.finalUrl, !finalUrlString.isEmpty else {
+        guard let finalUrlString = adResponse?.finalUrl, !finalUrlString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             let error = NSError(domain: "com.artApps.sdk", code: 302, userInfo: [NSLocalizedDescriptionKey: "Missing ad URL"])
             print("[ArtApps] Error: Missing ad URL.")
-            delegate?.artAppsInterstitial(self, didFailToLoad: error)
+            notifyDisplayFailure(error)
             return
         }
         
-        guard let url = URL(string: finalUrlString) else {
+        guard let url = adURL(from: adResponse) else {
             let error = NSError(domain: "com.artApps.sdk", code: 303, userInfo: [NSLocalizedDescriptionKey: "Invalid ad URL"])
             print("[ArtApps] Error: Invalid ad URL.")
-            delegate?.artAppsInterstitial(self, didFailToLoad: error)
+            notifyDisplayFailure(error)
+            return
+        }
+        
+        guard viewController.view.window != nil else {
+            let error = NSError(domain: "com.artApps.sdk", code: 304, userInfo: [NSLocalizedDescriptionKey: "No presenting window"])
+            print("[ArtApps] Error: No presenting window.")
+            notifyDisplayFailure(error)
             return
         }
         
         let duration = TimeInterval(adResponse?.sessionGate ?? 20)
-        presenter = ArtAppsWebViewController(url: url, adDuration: duration)
-        presenter?.delegate = self
+        let adPresenter = ArtAppsWebViewController(url: url, adDuration: duration)
+        adPresenter.delegate = self
+        adPresenter.modalPresentationStyle = .fullScreen
         
-        presenter?.modalPresentationStyle = .fullScreen
-      
-        viewController.present(presenter!, animated: true)
+        presenter = adPresenter
+        didNotifyDisplay = false
+        didCompleteDisplay = false
+        adDisplayStartTime = nil
+        
+        viewController.present(adPresenter, animated: true)
+    }
+    
+    private func adURL(from response: ArtAppsAdResponse?) -> URL? {
+        guard let finalUrlString = response?.finalUrl?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !finalUrlString.isEmpty else {
+            return nil
+        }
+        
+        guard let url = URL(string: finalUrlString),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else {
+            return nil
+        }
+        
+        return url
+    }
+    
+    private func notifyDisplayFailure(_ error: Error) {
+        guard !didCompleteDisplay else { return }
+        didCompleteDisplay = true
+        delegate?.artAppsInterstitial(self, didFailToDisplay: error)
+        resetAdState()
+    }
+    
+    private func notifyDidDisplay(for controller: ArtAppsWebViewController) {
+        guard presenter === controller, !didNotifyDisplay, !didCompleteDisplay else { return }
+        
+        didNotifyDisplay = true
+        adDisplayStartTime = Date()
+        ArtApps.shared.didShowAd() // Record impression timestamp for freq cap
+        delegate?.artAppsInterstitialDidDisplay(self)
+    }
+    
+    private func notifyDidHide(trackImpression: Bool) {
+        guard !didCompleteDisplay else { return }
+        didCompleteDisplay = true
+        
+        if trackImpression, let startTime = adDisplayStartTime {
+            let duration = Date().timeIntervalSince(startTime)
+            print("[ArtApps] Ad was visible for \(Int(duration)) seconds")
+            
+            if let requestId = adResponse?.requestId {
+                ArtAppsNetworkManager.shared
+                    .trackImpression(
+                        requestId: requestId,
+                        trackUrl: adResponse?.trackUrl,
+                        visible: Int(duration)
+                    )
+            }
+        }
+        
+        delegate?.artAppsInterstitialDidHide(self)
+        resetAdState()
+    }
+    
+    private func resetAdState() {
+        isReady = false
+        adResponse = nil
+        presenter = nil
+        adDisplayStartTime = nil
+        didNotifyDisplay = false
+        didCompleteDisplay = false
     }
 }
 
 // MARK: - ArtAppsWebViewControllerDelegate
 extension ArtAppsInterstitial: ArtAppsWebViewControllerDelegate {
     
-    func webViewControllerDidLoad(_ controller: ArtAppsWebViewController) {
-        adDisplayStartTime = Date()
-        ArtApps.shared.didShowAd() // Record impression timestamp for freq cap
-        delegate?.artAppsInterstitialDidDisplay(self)
-        
-//        // Tracking impression logic: send to your server
-//        if let requestId = adResponse?.requestId {
-//            ArtAppsNetworkManager.shared.trackImpression(requestId: requestId, trackUrl: adResponse?.trackUrl)
-//        }
+    func webViewControllerDidDisplay(_ controller: ArtAppsWebViewController) {
+        notifyDidDisplay(for: controller)
     }
     
     func webViewControllerDidFinish(_ controller: ArtAppsWebViewController) {
-        if let startTime = adDisplayStartTime {
-            let duration = Date().timeIntervalSince(startTime)
-            print("[ArtApps] Ad was visible for \(Int(duration)) seconds")
-            
-            // Tracking impression logic: send to your server
-                 if let requestId = adResponse?.requestId {
-                     ArtAppsNetworkManager.shared
-                         .trackImpression(
-                            requestId: requestId,
-                            trackUrl: adResponse?.trackUrl,
-                            visible: Int(duration)
-                         )
-                 }
-        }
-        
-        delegate?.artAppsInterstitialDidHide(self)
-        isReady = false // Reset readiness
-        self.presenter = nil
+        guard presenter === controller else { return }
+        notifyDidHide(trackImpression: true)
     }
     
     func webViewController(_ controller: ArtAppsWebViewController, didFailWithError error: Error) {
-        // Handle load error during presentation if needed
         print("[ArtApps] WebView failed: \(error.localizedDescription)")
+        
+        guard presenter === controller, !didCompleteDisplay else { return }
+        
+        if didNotifyDisplay {
+            controller.dismiss(animated: true) { [weak self] in
+                self?.notifyDidHide(trackImpression: false)
+            }
+        } else if controller.presentingViewController != nil {
+            controller.dismiss(animated: true) { [weak self] in
+                self?.notifyDisplayFailure(error)
+            }
+        } else {
+            notifyDisplayFailure(error)
+        }
     }
 }

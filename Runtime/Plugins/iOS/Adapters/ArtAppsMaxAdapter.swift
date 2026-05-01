@@ -93,6 +93,14 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
             capturedSelf.value.adapterDelegate = nil
         }
     }
+    
+    @MainActor
+    func clearInterstitialAd(_ ad: ArtAppsInterstitial) {
+        guard interstitialAd === ad else { return }
+        interstitialAd?.delegate = nil
+        interstitialAd = nil
+        adapterDelegate = nil
+    }
 
     // MARK: - MAInterstitialAdapter Methods
 
@@ -143,8 +151,15 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
             
             guard let ad = strongSelf.interstitialAd, ad.isReady else {
                 delegate.didFailToDisplayInterstitialAdWithError(MAAdapterError.adNotReady)
+                strongSelf.interstitialAd?.delegate = nil
+                strongSelf.interstitialAd = nil
+                strongSelf.adapterDelegate = nil
                 return
             }
+            
+            let adDelegate = ArtAppsInterstitialAdapterDelegate(parentAdapter: strongSelf, delegate: delegate)
+            strongSelf.adapterDelegate = adDelegate
+            ad.delegate = adDelegate
             
             // ALUtils.topViewControllerFromKeyWindow() is now non-optional in newer SDKs
             let presentingVC = ALUtils.topViewControllerFromKeyWindow()
@@ -153,4 +168,3 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         }
     }
 }
-
