@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4] - 2026-05-04
+
+### Changed
+- Fixed Android interstitial presentation by launching the ad activity on the main thread.
+- Kept the active MAX display listener alive while the Android ad activity is being shown.
+- Added Android activity export metadata and consumer keep rules to the AAR.
+
 ## [1.0.3] - 2026-05-04
 
 ### Changed

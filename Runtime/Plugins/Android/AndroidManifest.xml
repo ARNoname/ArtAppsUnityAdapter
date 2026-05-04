@@ -6,6 +6,7 @@
         <activity android:name="com.artapps.sdk.ArtAppsWebViewActivity"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                   android:configChanges="orientation|screenSize|keyboardHidden"
-                  android:hardwareAccelerated="true" />
+                  android:hardwareAccelerated="true"
+                  android:exported="false" />
     </application>
 </manifest>
