@@ -17,7 +17,10 @@ class ArtAppsNetworkManager {
             return
         }
         
+        let requestID = UUID().uuidString
+      
         components.queryItems = [
+            URLQueryItem(name: "request_id", value: requestID),
             URLQueryItem(name: "partner_id", value: partnerId),
             URLQueryItem(name: "app_id", value: appId),
             URLQueryItem(name: "placement", value: placementId),
