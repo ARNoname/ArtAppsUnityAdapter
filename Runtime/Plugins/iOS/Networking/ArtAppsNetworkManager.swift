@@ -9,6 +9,7 @@ class ArtAppsNetworkManager {
     private init() {}
     
     var baseURL = "https://api.adw.net/applovin/request"
+    private let requestIDStorageKey = "ArtApps_request_id"
     
     func fetchAd(partnerId: String, appId: String, placementId: String, completion: @escaping @Sendable (Result<ArtAppsAdResponse, Error>) -> Void) {
         
@@ -17,7 +18,7 @@ class ArtAppsNetworkManager {
             return
         }
         
-        let requestID = UUID().uuidString
+        let requestID = persistentRequestID()
       
         components.queryItems = [
             URLQueryItem(name: "request_id", value: requestID),
@@ -61,6 +62,16 @@ class ArtAppsNetworkManager {
                 completion(.failure(error))
             }
         }
+    }
+    
+    private func persistentRequestID() -> String {
+        if let requestID = UserDefaults.standard.string(forKey: requestIDStorageKey) {
+            return requestID
+        }
+        
+        let requestID = UUID().uuidString
+        UserDefaults.standard.set(requestID, forKey: requestIDStorageKey)
+        return requestID
     }
     
     func trackImpression(requestId: String, trackUrl: String?, visible: Int) {
