@@ -71,7 +71,7 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         
         let params = UncheckedSendable(value: (partnerId, appId, completionHandler))
     
-        DispatchQueue.main.async {
+        Task { @MainActor in
             ArtApps.shared.initialize(partnerId: params.value.0, appId: params.value.1)
             params.value.2(.initializedSuccess, nil)
         }
@@ -87,7 +87,7 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
 
     override func destroy() {
         let capturedSelf = UncheckedSendable(value: self)
-        DispatchQueue.main.async {
+        Task { @MainActor in
             capturedSelf.value.interstitialAd?.delegate = nil
             capturedSelf.value.interstitialAd = nil
             capturedSelf.value.adapterDelegate = nil
@@ -119,7 +119,7 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         
         let captured = UncheckedSendable(value: (self, delegate, placementId, partnerId, appId))
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             let strongSelf = captured.value.0
             let delegate = captured.value.1
             let placementId = captured.value.2
@@ -145,7 +145,7 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
         
         let captured = UncheckedSendable(value: (self, delegate))
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             let strongSelf = captured.value.0
             let delegate = captured.value.1
             

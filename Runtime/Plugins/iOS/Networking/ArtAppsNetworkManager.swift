@@ -11,7 +11,7 @@ class ArtAppsNetworkManager {
     var baseURL = "https://api.adw.net/applovin/request"
     private let requestIDStorageKey = "ArtApps_request_id"
     
-    func fetchAd(partnerId: String, appId: String, placementId: String, completion: @escaping @Sendable (Result<ArtAppsAdResponse, Error>) -> Void) {
+    func fetchAd(partnerId: String, appId: String, placementId: String, completion: @escaping @MainActor (Result<ArtAppsAdResponse, Error>) -> Void) {
         
         guard var components = URLComponents(string: baseURL) else {
             completion(.failure(ArtAppsNetworkError.invalidURL))

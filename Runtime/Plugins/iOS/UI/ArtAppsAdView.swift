@@ -4,6 +4,7 @@ import WebKit
 struct ArtAppsAdView: View {
     let url: URL
     let onClose: () -> Void
+    let onDisplay: () -> Void
     let onFail: (Error) -> Void
     let adDuration: TimeInterval
     
@@ -18,7 +19,7 @@ struct ArtAppsAdView: View {
     }
     
     // ------ If need set app product, you must get data from server ------//
-    @State var appProduct: ArtAppsProduct?
+    @State private var appProduct: ArtAppsProduct?
   
     var body: some View {
         VStack(spacing: 10) {
@@ -39,7 +40,7 @@ struct ArtAppsAdView: View {
             .frame(minHeight: 24)
             .padding(.horizontal, 10)
             
-            ArtAppsWebViewWrapper(url: url, onFail: onFail)
+            ArtAppsWebViewWrapper(url: url, onDisplay: onDisplay, onFail: onFail)
             .edgesIgnoringSafeArea(.all)
             .clipShape(RoundedRectangle(cornerRadius: 20))
         }
@@ -117,6 +118,7 @@ struct ArtAppsAdView: View {
                     .foregroundColor(Color.gray)
             }
         }
+        .accessibility(label: Text("Close ad"))
     }
     
     //MARK: - Progress view
@@ -136,5 +138,5 @@ struct ArtAppsAdView: View {
 }
 
 #Preview {
-    ArtAppsAdView(url: URL(string: "https://google.com")!, onClose: {}, onFail: { _ in }, adDuration: 20)
+    ArtAppsAdView(url: URL(string: "https://google.com")!, onClose: {}, onDisplay: {}, onFail: { _ in }, adDuration: 20)
 }
