@@ -78,11 +78,11 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
     }
 
     override var sdkVersion: String {
-        return "1.0.0"
+        return "1.0.5"
     }
 
     override var adapterVersion: String {
-        return "1.0.0.0"
+        return "1.0.5.0"
     }
 
     override func destroy() {
@@ -132,7 +132,11 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
             strongSelf.interstitialAd = ArtAppsInterstitial(placementId: placementId)
             
             // Retain the delegate strongly
-            let adDelegate = ArtAppsInterstitialAdapterDelegate(parentAdapter: strongSelf, delegate: delegate)
+            let adDelegate = ArtAppsInterstitialAdapterDelegate(
+                parentAdapter: strongSelf,
+                delegate: delegate,
+                phase: .load
+            )
             strongSelf.adapterDelegate = adDelegate
             
             strongSelf.interstitialAd?.delegate = adDelegate
@@ -157,7 +161,11 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
                 return
             }
             
-            let adDelegate = ArtAppsInterstitialAdapterDelegate(parentAdapter: strongSelf, delegate: delegate)
+            let adDelegate = ArtAppsInterstitialAdapterDelegate(
+                parentAdapter: strongSelf,
+                delegate: delegate,
+                phase: .display
+            )
             strongSelf.adapterDelegate = adDelegate
             ad.delegate = adDelegate
             

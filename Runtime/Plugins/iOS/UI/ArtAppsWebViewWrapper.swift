@@ -48,10 +48,6 @@ struct ArtAppsWebViewWrapper: UIViewRepresentable {
             return .allow
         }
 
-        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-            notifyDisplayIfNeeded()
-        }
-
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             didFinishInitialNavigation = true
             notifyDisplayIfNeeded()
@@ -65,19 +61,28 @@ struct ArtAppsWebViewWrapper: UIViewRepresentable {
             notifyFailureIfNeeded(error)
         }
 
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            let error = NSError(
+                domain: "com.artApps.sdk",
+                code: 307,
+                userInfo: [NSLocalizedDescriptionKey: "Ad web content process terminated"]
+            )
+            notifyFailureIfNeeded(error, isTerminal: true)
+        }
+
         private func notifyDisplayIfNeeded() {
             guard !didNotifyDisplay, !didNotifyFailure else { return }
             didNotifyDisplay = true
             parent.onDisplay()
         }
 
-        private func notifyFailureIfNeeded(_ error: Error) {
+        private func notifyFailureIfNeeded(_ error: Error, isTerminal: Bool = false) {
             let code = urlErrorCode(from: error)
             if code == .cancelled {
                 return
             }
 
-            let shouldReportFailure = !didFinishInitialNavigation || isTerminalNetworkError(code)
+            let shouldReportFailure = isTerminal || !didFinishInitialNavigation || isTerminalNetworkError(code)
             guard shouldReportFailure, !didNotifyFailure else { return }
             didNotifyFailure = true
             parent.onFail(error)

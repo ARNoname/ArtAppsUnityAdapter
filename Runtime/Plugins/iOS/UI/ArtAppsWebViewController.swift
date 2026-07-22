@@ -14,6 +14,7 @@ class ArtAppsWebViewController: UIViewController {
     weak var delegate: ArtAppsWebViewControllerDelegate?
     private let url: URL
     private let adDuration: TimeInterval
+    private var didStartLoading = false
     private var didNotifyDisplay = false
     private var didFinishOrFail = false
     private var loadWatchdogTimer: Timer?
@@ -33,6 +34,25 @@ class ArtAppsWebViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        guard !didStartLoading, !didFinishOrFail else { return }
+        didStartLoading = true
+
+        let reachability = ArtAppsReachability.shared
+        guard reachability.isConnectedToNetwork else {
+            let error = NSError(
+                domain: "com.artApps.sdk",
+                code: 305,
+                userInfo: [NSLocalizedDescriptionKey: "No internet connection"]
+            )
+            print("[ArtApps] Network became unavailable before WebView presentation completed. State: \(reachability.statusDescription)")
+            handleFailure(error)
+            return
+        }
 
         setupSwiftUI()
         startLoadWatchdog()

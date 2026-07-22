@@ -31,6 +31,7 @@ public class ArtApps {
     private init() {}
     
     public func initialize(partnerId: String, appId: String, baseURL: String? = nil) {
+         ArtAppsReachability.shared.start()
          
          self.partnerId = partnerId
          self.appId = appId
@@ -41,7 +42,7 @@ public class ArtApps {
         
          self.isInitialized = true
         
-         print("[ArtApps] Initialized at \(startTime). PartnerID: \(partnerId)")
+         print("[ArtApps] SDK 1.0.5 initialized at \(startTime). PartnerID: \(partnerId)")
          print("[ArtApps] Initialized at \(startTime). AppID: \(appId)")
      }
 

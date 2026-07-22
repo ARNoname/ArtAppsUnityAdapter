@@ -80,7 +80,10 @@ public class ArtAppsInterstitial: NSObject {
             return
         }
 
-        guard ArtAppsReachability.isConnectedToNetwork() else {
+        let reachability = ArtAppsReachability.shared
+        print("[ArtApps] Interstitial show requested. Network: \(reachability.statusDescription)")
+
+        guard reachability.isConnectedToNetwork else {
             let error = NSError(domain: "com.artApps.sdk", code: 305, userInfo: [NSLocalizedDescriptionKey: "No internet connection"])
             print("[ArtApps] Error: Cannot show interstitial while offline.")
             notifyDisplayFailure(error)
@@ -152,6 +155,7 @@ public class ArtAppsInterstitial: NSObject {
     private func notifyDisplayFailure(_ error: Error) {
         guard !didCompleteDisplay else { return }
         didCompleteDisplay = true
+        print("[ArtApps] Display state: failed-before-display (\(error.localizedDescription))")
         delegate?.artAppsInterstitial(self, didFailToDisplay: error)
         resetAdState()
     }
@@ -161,6 +165,7 @@ public class ArtAppsInterstitial: NSObject {
 
         didNotifyDisplay = true
         adDisplayStartTime = Date()
+        print("[ArtApps] Display state: displayed")
         ArtApps.shared.didShowAd() // Record impression timestamp for freq cap
         delegate?.artAppsInterstitialDidDisplay(self)
     }
@@ -168,6 +173,7 @@ public class ArtAppsInterstitial: NSObject {
     private func notifyDidHide(trackImpression: Bool) {
         guard !didCompleteDisplay else { return }
         didCompleteDisplay = true
+        print("[ArtApps] Display state: hidden")
 
         if trackImpression, let startTime = adDisplayStartTime {
             let duration = Date().timeIntervalSince(startTime)
@@ -215,11 +221,11 @@ extension ArtAppsInterstitial: ArtAppsWebViewControllerDelegate {
         guard presenter === controller, !didCompleteDisplay else { return }
 
         if didNotifyDisplay {
-            controller.dismiss(animated: true) { [weak self] in
+            controller.dismiss(animated: false) { [weak self] in
                 self?.notifyDidHide(trackImpression: false)
             }
         } else if controller.presentingViewController != nil {
-            controller.dismiss(animated: true) { [weak self] in
+            controller.dismiss(animated: false) { [weak self] in
                 self?.notifyDisplayFailure(error)
             }
         } else {

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.5] - 2026-07-22
+
+### Changed
+- Replaced the one-shot iOS reachability check with a continuously updated network path monitor.
+- Delayed iOS WebView loading until fullscreen presentation completes and rechecked connectivity before loading.
+- Reported an interstitial as displayed only after the initial WebView navigation fully finishes.
+- Enforced a single valid AppLovin MAX terminal callback sequence during offline and WebKit failures.
+- Added iOS adapter version and lifecycle diagnostics for integration verification.
+
 ## [1.0.4] - 2026-05-04
 
 ### Changed
