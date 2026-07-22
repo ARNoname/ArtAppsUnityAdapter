@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.6] - 2026-07-22
+
+### Changed
+- Added reproducible Android adapter source under `AndroidSource~` and rebuilt the bundled AAR.
+- Replaced the one-shot Android connectivity check with a process-wide validated-network monitor plus synchronous show-time checks.
+- Delayed Android WebView navigation until the fullscreen activity reaches `onPostResume()` and rechecked connectivity immediately before loading.
+- Started the close countdown and reported display only after the initial main-frame navigation finishes.
+- Enforced a single valid AppLovin MAX terminal callback sequence during offline, WebView, and renderer-process failures.
+- Declared Android `minSdk 21`, matching the WebView APIs required by the adapter.
+
 ## [1.0.5] - 2026-07-22
 
 ### Changed

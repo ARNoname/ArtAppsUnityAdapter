@@ -1,0 +1,3 @@
+-keep class com.artapps.sdk.** { *; }
+-keep class com.applovin.mediation.adapters.** { *; }
+-keep class com.applovin.mediation.adapter.** { *; }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="artapps_close">Close</string>
+    <string name="artapps_countdown">Ads: %1$d</string>
+</resources>

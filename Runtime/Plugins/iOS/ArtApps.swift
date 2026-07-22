@@ -42,7 +42,7 @@ public class ArtApps {
         
          self.isInitialized = true
         
-         print("[ArtApps] SDK 1.0.5 initialized at \(startTime). PartnerID: \(partnerId)")
+         print("[ArtApps] SDK 1.0.6 initialized at \(startTime). PartnerID: \(partnerId)")
          print("[ArtApps] Initialized at \(startTime). AppID: \(appId)")
      }
 

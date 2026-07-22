@@ -1,0 +1,28 @@
+plugins {
+    id "com.android.library"
+}
+
+android {
+    namespace "com.artapps.sdk.plugin"
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 21
+        consumerProguardFiles "proguard.txt"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    compileOnly "com.applovin:applovin-sdk:12.6.1"
+}

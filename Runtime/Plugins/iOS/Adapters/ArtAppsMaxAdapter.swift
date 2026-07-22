@@ -78,11 +78,11 @@ class ArtAppsMaxAdapter: ALMediationAdapter, MAInterstitialAdapter {
     }
 
     override var sdkVersion: String {
-        return "1.0.5"
+        return "1.0.6"
     }
 
     override var adapterVersion: String {
-        return "1.0.5.0"
+        return "1.0.6.0"
     }
 
     override func destroy() {
